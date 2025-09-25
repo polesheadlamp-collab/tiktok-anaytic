@@ -1,0 +1,44 @@
+# OS & editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+*.log
+
+# Secrets/env
+.env
+.env.*
+secrets/
+*.key
+*.pem
+*.p12
+*.crt
+*.token
+*.credentials
+
+# Data/artifacts (kecuali sample)
+data/
+datasets/
+*.csv
+*.parquet
+*.xlsx
+*.mp4
+*.jpg
+*.png
+!data/samples/**
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+env/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
