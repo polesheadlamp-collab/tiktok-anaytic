@@ -1,0 +1,7 @@
+# OpenAPI contract (stub)
+# Sumber: docs/00-BRD.md, 01-FRD.md, 02-FSD.md
+openapi: 3.0.3
+info: {title: TAAIS API, version: 0.1.0}
+paths:
+  /health: {get: {summary: Health, responses: {200: {description: ok}}}}
+
