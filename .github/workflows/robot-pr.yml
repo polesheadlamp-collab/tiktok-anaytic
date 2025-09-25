@@ -1,10 +1,6 @@
 name: Robot PR + Auto-merge
-on:
-  push:
-    branches: ['robot/**']
-permissions:
-  contents: write
-  pull-requests: write
+on: { push: { branches: ['robot/**'] } }
+permissions: { contents: write, pull-requests: write }
 concurrency:
   group: pr-${{ github.ref }}
   cancel-in-progress: true
@@ -21,27 +17,25 @@ jobs:
           script: |
             const head = process.env.GITHUB_REF.replace('refs/heads/','');
             const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-            // cari PR terbuka
             const prs = await github.paginate(github.rest.pulls.list, { owner, repo, state:'open', head:`${owner}:${head}`, base:'main' });
-            if (prs.length) {
-              core.setOutput('number', prs[0].number.toString());
-            } else {
+            let number;
+            if (prs.length) number = prs[0].number;
+            else {
               const pr = await github.rest.pulls.create({ owner, repo, head, base:'main',
                 title:`robot: auto PR from ${head}`, body:'Automated PR from robot branch.' });
-              core.setOutput('number', pr.data.number.toString());
+              number = pr.data.number;
             }
-      - name: Label PR as robot
+            core.setOutput('number', number.toString());
+      - name: Label PR
         if: steps.ensure.outputs.number
         uses: actions/github-script@v7
         with:
           script: |
             const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
             await github.rest.issues.addLabels({
-              owner, repo,
-              issue_number: Number('${{ steps.ensure.outputs.number }}'),
-              labels: ['robot']
+              owner, repo, issue_number: Number('${{ steps.ensure.outputs.number }}'), labels: ['robot']
             }).catch(()=>{});
-      - name: Enable auto-merge (squash) when allowed
+      - name: Enable auto-merge when allowed (squash)
         if: steps.ensure.outputs.number
         continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3

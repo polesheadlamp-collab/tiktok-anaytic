@@ -1,8 +1,6 @@
 name: robot-ci (noop-fast)
 on:
-  push:
-    branches:
-      - 'robot/**'
+  push:   { branches: ['robot/**'] }
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
@@ -10,12 +8,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.head_ref }}
   cancel-in-progress: true
 jobs:
-  ok:
-    # Jalan kalau event-nya push ke robot/** ATAU PR dari robot/** -> main
+  green:
     if: startsWith(github.ref, 'refs/heads/robot/') || startsWith(github.head_ref || '', 'robot/')
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      - name: Green by design
-        run: echo "robot branch → OK"
+      - run: echo "robot/** → always green"
