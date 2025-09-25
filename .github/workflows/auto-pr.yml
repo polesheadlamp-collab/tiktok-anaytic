@@ -2,7 +2,7 @@ name: Auto PR for robot branches
 on:
   push:
     branches:
-      - "robot/**"
+      - 'robot/**'
 permissions:
   contents: write
   pull-requests: write
@@ -11,51 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Open or update PR
-        uses: actions/github-script@v7
         with:
-          script: |
-            const branch = context.ref.replace("refs/heads/","")
-            const base = "main"
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: "open"
-            })
-            if (!prs.length) {
-              const { data: pr } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `Auto: ${branch}`,
-                head: branch,
-                base,
-                body: "Opened by Auto PR workflow"
-              })
-              core.info(`Opened PR #${pr.number}`)
-            } else {
-              core.info(`PR exists: #${prs[0].number}`)
-            }
-      - name: Try enable auto-merge (squash)
-        if: ${{ always() }}
-        uses: actions/github-script@v7
+          fetch-depth: 0
+      - name: Open or update PR → main
+        uses: peter-evans/create-pull-request@v6
         with:
-          script: |
-            try {
-              const branch = context.ref.replace("refs/heads/","")
-              const { data: prs } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head: `${context.repo.owner}:${branch}`,
-                state: "open"
-              })
-              if (!prs.length) return
-              const pr = prs[0]
-              await github.graphql(`
-                mutation($pr:ID!) {
-                  enablePullRequestAutoMerge(input:{pullRequestId:$pr, mergeMethod:SQUASH}){ clientMutationId }
-                }
-              `, { pr: pr.node_id })
-            } catch (e) {
-              core.info(`Auto-merge skipped: ${e.message}`)
-            }
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: ${{ github.ref_name }}
+          title: "🤖 Auto PR: ${{ github.ref_name }}"
+          body: "Auto-generated PR from ${{ github.ref }} by TAAIS bot."
+          labels: automation, robot
+          draft: false
