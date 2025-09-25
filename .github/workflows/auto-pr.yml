@@ -36,27 +36,26 @@ jobs:
             } else {
               core.info(`PR exists: #${prs[0].number}`)
             }
-      - name: Enable auto-merge (squash) if allowed
+      - name: Try enable auto-merge (squash)
+        if: ${{ always() }}
         uses: actions/github-script@v7
-        continue-on-error: true
         with:
           script: |
-            const branch = context.ref.replace("refs/heads/","")
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: "open"
-            })
-            if (!prs.length) return
-            const pr = prs[0]
             try {
+              const branch = context.ref.replace("refs/heads/","")
+              const { data: prs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: `${context.repo.owner}:${branch}`,
+                state: "open"
+              })
+              if (!prs.length) return
+              const pr = prs[0]
               await github.graphql(`
-                mutation($id:ID!){
-                  enablePullRequestAutoMerge(input:{pullRequestId:$id, mergeMethod:SQUASH}){ clientMutationId }
+                mutation($pr:ID!) {
+                  enablePullRequestAutoMerge(input:{pullRequestId:$pr, mergeMethod:SQUASH}){ clientMutationId }
                 }
-              `, { id: pr.node_id })
-              core.info("Auto-merge enabled")
+              `, { pr: pr.node_id })
             } catch (e) {
               core.info(`Auto-merge skipped: ${e.message}`)
             }
