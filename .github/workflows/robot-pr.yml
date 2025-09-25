@@ -1,35 +1,50 @@
 name: Robot PR + Auto-merge
 on:
   push:
-    branches:
-      - 'robot/**'
+    branches: ['robot/**']
 permissions:
   contents: write
   pull-requests: write
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Create/Update PR from robot branch
-        id: cpr
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Ensure PR exists (head robot/** -> main)
+        id: ensure
         uses: actions/github-script@v7
         with:
           script: |
-            const head = context.ref.replace('refs/heads/', '');
-            const { owner, repo } = context.repo;
-            // find existing PR
-            const { data: prs } = await github.rest.pulls.list({ owner, repo, state: 'open', head: owner+':'+head, base: 'main' });
-            let pr;
+            const head = process.env.GITHUB_REF.replace('refs/heads/','');
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+            // cari PR terbuka
+            const prs = await github.paginate(github.rest.pulls.list, { owner, repo, state:'open', head:`${owner}:${head}`, base:'main' });
             if (prs.length) {
-              pr = prs[0];
+              core.setOutput('number', prs[0].number.toString());
             } else {
-              const res = await github.rest.pulls.create({ owner, repo, head, base: 'main', title: `Robot: ${head}` });
-              pr = res.data;
+              const pr = await github.rest.pulls.create({ owner, repo, head, base:'main',
+                title:`robot: auto PR from ${head}`, body:'Automated PR from robot branch.' });
+              core.setOutput('number', pr.data.number.toString());
             }
-            core.setOutput('number', pr.number.toString());
-      - name: Enable automerge (squash)
+      - name: Label PR as robot
+        if: steps.ensure.outputs.number
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+            await github.rest.issues.addLabels({
+              owner, repo,
+              issue_number: Number('${{ steps.ensure.outputs.number }}'),
+              labels: ['robot']
+            }).catch(()=>{});
+      - name: Enable auto-merge (squash) when allowed
+        if: steps.ensure.outputs.number
+        continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.cpr.outputs.number }}
+          pull-request-number: ${{ steps.ensure.outputs.number }}
           merge-method: squash
