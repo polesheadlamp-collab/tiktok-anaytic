@@ -1,3 +1,7 @@
+<!-- generated: 2025-09-25 14:45:48 UTC -->
+
+# 02-FSD.md
+
 TAAIS Design System Ultra (v1)
  Tujuan
  Menyediakan pedoman UI/UX kelas enterprise untuk sistem analitik TikTok (TAAIS): konsisten, rapih, mudah di-

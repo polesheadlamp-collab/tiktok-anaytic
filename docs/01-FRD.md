@@ -1,3 +1,7 @@
+<!-- generated: 2025-09-25 14:45:48 UTC -->
+
+# 01-FRD.md
+
                                                                                                                            TAAIS — Ultra Addendum (A1 Landscape) v2
 
                                                                                                          I) Roadmap (4 minggu)
