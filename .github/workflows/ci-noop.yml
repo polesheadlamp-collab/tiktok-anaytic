@@ -1,0 +1,11 @@
+name: CI (noop)
+on:
+  pull_request:
+  push:
+    branches:
+      - "robot/**"
+jobs:
+  ok:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
