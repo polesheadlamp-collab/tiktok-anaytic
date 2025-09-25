@@ -1,3 +1,7 @@
+<!-- generated: 2025-09-25 14:45:48 UTC -->
+
+# 00-BRD.md
+
                                                                                                                                                                                           TikTok Analytic & Action Intelligence System (TAAIS) — Ultra‑Complex A1
 
               1) Data Sources

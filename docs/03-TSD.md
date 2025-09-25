@@ -1,3 +1,7 @@
+<!-- generated: 2025-09-25 14:45:49 UTC -->
+
+# 03-TSD.md
+
 Redesign Analyst Overview
   V15                                               Completion         ER                    Composite
                                P82                               58%        7.1%                                   73

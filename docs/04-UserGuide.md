@@ -1,3 +1,7 @@
+<!-- generated: 2025-09-25 14:45:49 UTC -->
+
+# 04-UserGuide.md
+
 Executive Overview Hi Fi v2
 TAAIS                Analytics           Planner          Preflight        Playbook          Action               Admin
 
