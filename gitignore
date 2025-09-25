@@ -1,0 +1,40 @@
+# OS & editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+*.log
+
+# Secrets/env (jangan pernah commit)
+.env
+.env.*
+secrets.*
+*.key
+*.pem
+*.p12
+*.crt
+*.token
+*.credentials
+
+# Data besar
+data/raw/
+data/tmp/
+data/cache/
+*.sqlite
+*.db
+
+# CSV/exports (kecuali sampel)
+*.csv
+!data/samples/**
+
+# Build artefacts (kalau nanti ada app)
+dist/
+build/
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+coverage/
