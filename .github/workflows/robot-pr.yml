@@ -1,0 +1,35 @@
+name: Robot PR + Auto-merge
+on:
+  push:
+    branches:
+      - 'robot/**'
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create/Update PR from robot branch
+        id: cpr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const head = context.ref.replace('refs/heads/', '');
+            const { owner, repo } = context.repo;
+            // find existing PR
+            const { data: prs } = await github.rest.pulls.list({ owner, repo, state: 'open', head: owner+':'+head, base: 'main' });
+            let pr;
+            if (prs.length) {
+              pr = prs[0];
+            } else {
+              const res = await github.rest.pulls.create({ owner, repo, head, base: 'main', title: `Robot: ${head}` });
+              pr = res.data;
+            }
+            core.setOutput('number', pr.number.toString());
+      - name: Enable automerge (squash)
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.cpr.outputs.number }}
+          merge-method: squash
